@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FerroPulse — Pitch Deck Oficial | Mintios</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ESCENARIO VIVO DE FONDO (TILEMAP DE MÁRMOL 32x32 + FE26) -->
+    <div id="bg-stage" aria-hidden="true">
+        <div class="bg-mosaico"></div>
+        <div class="bg-radial-pulse"></div>
+        <canvas id="tilemap-canvas"></canvas>
+        <div id="bg-fe26-actor" class="fe26-bg-walker">
+            <div class="fe26-bg-sprite"></div>
+        </div>
+    </div>
+
+    <!-- VISOR DE CÁMARA DE SEGURIDAD ROTA (HUD + VFX + GRIETAS) -->
+    <div id="camera-overlay" aria-hidden="true">
+        <div class="crt-scanlines"></div>
+        <div class="crt-vignette"></div>
+
+        <!-- Grietas de pantalla rota en esquinas -->
+        <svg class="cracked-glass crack-top-right" viewBox="0 0 400 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M400 0 L315 65 L240 82 L175 130 L120 140" stroke="rgba(190, 250, 242, 0.38)" stroke-width="1.6"/>
+            <path d="M315 65 L295 145 L260 220 L275 280" stroke="rgba(190, 250, 242, 0.28)" stroke-width="1.2"/>
+            <path d="M315 65 L370 120 L400 135" stroke="rgba(190, 250, 242, 0.32)" stroke-width="1.2"/>
+            <path d="M240 82 L210 30 L195 0" stroke="rgba(190, 250, 242, 0.25)" stroke-width="1"/>
+            <path d="M240 82 L235 160 L190 215" stroke="rgba(190, 250, 242, 0.22)" stroke-width="1"/>
+            <path d="M295 145 L350 185 L400 205" stroke="rgba(190, 250, 242, 0.25)" stroke-width="1.1"/>
+            <path d="M175 130 L150 85 L110 45 L80 0" stroke="rgba(190, 250, 242, 0.18)" stroke-width="0.9"/>
+            <polygon points="400,0 350,0 315,65 370,120 400,85" fill="rgba(95, 242, 224, 0.03)"/>
+        </svg>
+
+        <svg class="cracked-glass crack-bottom-left" viewBox="0 0 360 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 280 L75 215 L145 195 L215 140" stroke="rgba(190, 250, 242, 0.35)" stroke-width="1.5"/>
+            <path d="M75 215 L55 135 L20 85 L0 60" stroke="rgba(190, 250, 242, 0.26)" stroke-width="1.2"/>
+            <path d="M75 215 L130 250 L175 280" stroke="rgba(190, 250, 242, 0.28)" stroke-width="1.1"/>
+            <path d="M145 195 L125 130 L95 95" stroke="rgba(190, 250, 242, 0.2)" stroke-width="0.9"/>
+            <polygon points="0,280 0,210 75,215 130,250 90,280" fill="rgba(95, 242, 224, 0.025)"/>
+        </svg>
+
+        <!-- Marcos y esquineros de cámara -->
+        <div class="cam-corner cam-tl"></div>
+        <div class="cam-corner cam-tr"></div>
+        <div class="cam-corner cam-bl"></div>
+        <div class="cam-corner cam-br"></div>
+
+        <!-- HUD Superior de Cámara (discreto: nombre de cámara chiquito a la izquierda y tiempo transcurrido) -->
+        <header class="cam-hud-top">
+            <div class="cam-rec-group">
+                <span class="rec-dot"></span>
+                <span class="rec-label">CAM-04 // LAB-FE26</span>
+            </div>
+            <div class="cam-meta-group">
+                <span id="cam-timecode">00:00:00:00</span>
+            </div>
+        </header>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL DE DIAPOSITIVAS -->
+    <main id="deck-container">
+
+        <!-- ==========================================
+             SLIDE 1: PRESENTADORES (10-15 s)
+             Primero vacía -> luego aparecen nombres y fotos
+             ========================================== -->
+        <section class="slide active" data-slide="1" data-max-steps="1" data-bg-actor="true">
+            <div class="slide-inner center-layout">
+                <!-- Paso 1: Aparecen los expositores con sus fotos -->
+                <div class="presenters-wrapper reveal-step" data-step="1">
+                    <p class="section-kicker">REPRESENTANTES DE MINTIOS</p>
+                    <div class="presenters-grid">
+                        <article class="presenter-card">
+                            <div class="presenter-photo-frame">
+                                <img src="Recursos/luka_milani.jpeg" alt="Luka Manuel Milani">
+                                <span class="photo-scan-line"></span>
+                            </div>
+                            <div class="presenter-info">
+                                <h2>Luka Manuel Milani</h2>
+                                <span class="role-badge">LEAD ARTIST</span>
+                            </div>
+                        </article>
+
+                        <article class="presenter-card">
+                            <div class="presenter-photo-frame">
+                                <img src="Recursos/Albrecht-Sasha.png" alt="Albrecht Sasha">
+                                <span class="photo-scan-line"></span>
+                            </div>
+                            <div class="presenter-info">
+                                <h2>Albrecht Sasha</h2>
+                                <span class="role-badge">GAME DESIGNER</span>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 2: MINTIOS STUDIO (10-15 s)
+             Logo de Mintios + texto super corto en ítems
+             ========================================== -->
+        <section class="slide" data-slide="2" data-max-steps="0" data-bg-actor="true">
+            <div class="slide-inner split-layout">
+                <div class="mintios-brand-col">
+                    <div class="mintios-logo-box">
+                        <img src="Recursos/isotipo Mintios.png" alt="Isotipo Mintios" class="mintios-isotipo">
+                    </div>
+                    <h1 class="mintios-title">MINTIOS</h1>
+                    <p class="mintios-tagline">ESTUDIO INDEPENDIENTE DE VIDEOJUEGOS</p>
+                </div>
+
+                <div class="mintios-info-col">
+                    <ul class="cyber-list">
+                        <li>
+                            <span class="list-icon">◈</span>
+                            <div>
+                                <strong>Sede:</strong> Córdoba, Argentina.
+                            </div>
+                        </li>
+                        <li>
+                            <span class="list-icon">◈</span>
+                            <div>
+                                <strong>Origen:</strong> Nacido por alumnos del Colegio Universitario <strong>IES 21</strong>.
+                            </div>
+                        </li>
+                        <li>
+                            <span class="list-icon">◈</span>
+                            <div>
+                                <strong>Equipo Multidisciplinario (6 integrantes):</strong>
+                                <div class="team-mini-grid">
+                                    <span><b>Game Design:</b> Sasha Albrecht · Iñaki Guerrero B.</span>
+                                    <span><b>Programación:</b> Gabriel Dutto</span>
+                                    <span><b>Arte:</b> Luka Manuel Milani · Ignacio Aguirre · Facundo Marinelli</span>
+                                    <span><b>Sonido y Música:</b> Facundo Marinelli</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 3: HIGH CONCEPT FERROPULSE (30 s)
+             Logo FerroPulse + palabras temporizadas automáticas:
+             Precision -> Sci-Fi Industrial -> Shapeshifting
+             ========================================== -->
+        <section class="slide" data-slide="3" data-max-steps="0" data-bg-actor="true" data-auto-sequence="true">
+            <div class="slide-inner center-layout">
+                <!-- Recreación exacta del título por código en Menu/main_menu.tscn -->
+                <div class="ferropulse-code-logo">
+                    <div class="line-ferro">FERRO</div>
+                    <div class="line-pulse">PULSE</div>
+                    <div class="pulse-bar"></div>
+                </div>
+
+                <p class="high-concept-sub">PLATAFORMAS 2D DE PRECISIÓN, INERCIA Y CONTROL DEL MOMENTUM</p>
+
+                <!-- Palabras que aparecen solas espaciadas por tiempo -->
+                <div class="pillars-row">
+                    <div class="pillar-pill timed-pillar" id="pillar-1">
+                        <span class="pillar-index">01</span>
+                        <span class="pillar-text">Precision</span>
+                    </div>
+                    <div class="pillar-pill timed-pillar" id="pillar-2">
+                        <span class="pillar-index">02</span>
+                        <span class="pillar-text">Sci-Fi Industrial</span>
+                    </div>
+                    <div class="pillar-pill timed-pillar" id="pillar-3">
+                        <span class="pillar-index">03</span>
+                        <span class="pillar-text">Shapeshifting</span>
+                    </div>
+                </div>
+
+                <div class="inspirations-strip timed-pillar" id="pillar-4">
+                    <span>Inspirado en:</span>
+                    <span class="insp-tag">Super Mario Bros.</span>
+                    <span class="insp-tag">Sonic Advance</span>
+                    <span class="insp-tag">Super Meat Boy</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 4: EXPLICACIÓN NARRATIVA (30 s)
+             Imagen de Fe26 con títulos breves apareciendo uno a uno
+             ========================================== -->
+        <section class="slide" data-slide="4" data-max-steps="4" data-bg-actor="false">
+            <div class="slide-inner split-layout">
+                <div class="narrative-character-col">
+                    <div class="specimen-chamber">
+                        <div class="chamber-header">SUJETO // FE-26</div>
+                        <div class="sprite-stage-large">
+                            <div class="sprite-fe26-solid-idle pixel-art"></div>
+                        </div>
+                        <div class="chamber-footer">ESTADO: DESPIERTO · INTEGRIDAD ESTABLE</div>
+                    </div>
+                </div>
+
+                <div class="narrative-points-col">
+                    <p class="section-kicker">CONTEXTO NARRATIVO</p>
+                    <h2 class="slide-heading">EL DESPERTAR DE <span class="accent">FE26</span></h2>
+
+                    <div class="narrative-cards">
+                        <div class="narrative-card reveal-step" data-step="1">
+                            <span class="step-num">01</span>
+                            <div>
+                                <h3>Experimento Despierto</h3>
+                                <p>Tomás el lugar de <strong>Fe26</strong>, una entidad experimental que despierta sin su forma humana original.</p>
+                            </div>
+                        </div>
+
+                        <div class="narrative-card reveal-step" data-step="2">
+                            <span class="step-num">02</span>
+                            <div>
+                                <h3>Escape hacia la Libertad</h3>
+                                <p>Atrapado en un complejo científico abandonado, deberá abrirse paso piso a piso para escapar.</p>
+                            </div>
+                        </div>
+
+                        <div class="narrative-card reveal-step" data-step="3">
+                            <span class="step-num">03</span>
+                            <div>
+                                <h3>Ecos de la Guerra</h3>
+                                <p>Descubrir qué sucedió con las guerras que asolaban su mundo y el origen del proyecto.</p>
+                            </div>
+                        </div>
+
+                        <div class="narrative-card reveal-step" data-step="4">
+                            <span class="step-num">04</span>
+                            <div>
+                                <h3>El Misterio del Laboratorio Muerto</h3>
+                                <p>Desentrañar qué ocurrió con él y qué dejó a todas las instalaciones en ese estado devastado.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 5: EXPLICACIÓN MECÁNICA (45 s)
+             Sólido -> se cambia por Líquido -> se cambia por Eléctrico
+             Trigger: Click, Enter, Espacio o Flecha Derecha
+             ========================================== -->
+        <section class="slide" data-slide="5" data-max-steps="2" data-bg-actor="false">
+            <div class="slide-inner mechanics-layout">
+                <div class="mechanics-header">
+                    <div>
+                        <p class="section-kicker">SISTEMA DE CAMBIO DE FORMA EN TIEMPO REAL</p>
+                        <h2 class="slide-heading">3 ESTADOS DE LA MATERIA</h2>
+                    </div>
+                    <div class="state-tabs">
+                        <span class="state-tab active" data-state-tab="0">SÓLIDO</span>
+                        <span class="state-tab" data-state-tab="1">LÍQUIDO</span>
+                        <span class="state-tab" data-state-tab="2">ELÉCTRICO</span>
+                    </div>
+                </div>
+
+                <div class="state-showcase-stage">
+                    <!-- ESTADO 0: SÓLIDO -->
+                    <article class="state-panel active-state" data-state-panel="0">
+                        <div class="state-visual-box solid-theme">
+                            <div class="state-badge">FORMA 01 // BASE</div>
+                            <div class="sprite-stage-xl">
+                                <div class="sprite-fe26-solid-idle pixel-art"></div>
+                            </div>
+                            <div class="sprite-sub-strip">
+                                <div class="mini-anim-item">
+                                    <div class="sprite-fe26-solid-walk pixel-art"></div>
+                                    <span>Control</span>
+                                </div>
+                                <div class="mini-anim-item">
+                                    <div class="sprite-fe26-solid-jump pixel-art"></div>
+                                    <span>Doble Salto</span>
+                                </div>
+                                <div class="mini-anim-item">
+                                    <div class="sprite-fe26-solid-punch pixel-art"></div>
+                                    <span>Ataque</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="state-details-box">
+                            <h3 class="state-title">ESTADO SÓLIDO</h3>
+                            <p class="state-lead">Tracción estable y precisión clásica de plataformas.</p>
+                            <ul class="cyber-list">
+                                <li><span class="list-icon">▸</span><div><strong>Mayor control:</strong> Físicas firmes ideales para saltos simples de alta precisión.</div></li>
+                                <li><span class="list-icon">▸</span><div><strong>Doble Salto:</strong> Corrección aérea y alcance vertical seguro.</div></li>
+                                <li><span class="list-icon">▸</span><div><strong>Ataque contundente:</strong> Permite romper paredes frágiles o paralizar temporalmente a los enemigos.</div></li>
+                            </ul>
+                        </div>
+                    </article>
+
+                    <!-- ESTADO 1: LÍQUIDO -->
+                    <article class="state-panel" data-state-panel="1">
+                        <div class="state-visual-box liquid-theme">
+                            <div class="state-badge">FORMA 02 // FLUIDEZ</div>
+                            <div class="sprite-stage-xl">
+                                <div class="sprite-fe26-liquid pixel-art"></div>
+                            </div>
+                            <div class="state-caption-tag">CONSERVACIÓN DE INERCIA Y MOMENTUM</div>
+                        </div>
+                        <div class="state-details-box">
+                            <h3 class="state-title liquid-accent">ESTADO LÍQUIDO</h3>
+                            <p class="state-lead">Adaptabilidad morfológica e infiltración por el entorno.</p>
+                            <ul class="cyber-list">
+                                <li><span class="list-icon">▸</span><div><strong>Espacios pequeños:</strong> Compresión corporal para avanzar por conductos bajos.</div></li>
+                                <li><span class="list-icon">▸</span><div><strong>A través de rendijas:</strong> Filtración instantánea por rejillas y pisos permeables del laboratorio.</div></li>
+                                <li><span class="list-icon">▸</span><div><strong>Adhesión a paredes:</strong> Capacidad de pegarse a superficies verticales y conservar momentum en saltos largos.</div></li>
+                            </ul>
+                        </div>
+                    </article>
+
+                    <!-- ESTADO 2: ELÉCTRICO -->
+                    <article class="state-panel" data-state-panel="2">
+                        <div class="state-visual-box electric-theme">
+                            <div class="state-badge">FORMA 03 // ENERGÍA</div>
+                            <div class="sprite-stage-xl">
+                                <div class="sprite-fe26-electric-idle pixel-art"></div>
+                            </div>
+                            <div class="state-caption-tag">ALTA MOVILIDAD AÉREA Y CONDUCCIÓN</div>
+                        </div>
+                        <div class="state-details-box">
+                            <h3 class="state-title electric-accent">ESTADO ELÉCTRICO</h3>
+                            <p class="state-lead">Descarga cinética e interacción con los sistemas del laboratorio.</p>
+                            <ul class="cyber-list">
+                                <li><span class="list-icon">▸</span><div><strong>Levitación temporal:</strong> Suspensión magnética para sortear fosos y peligros.</div></li>
+                                <li><span class="list-icon">▸</span><div><strong>Dash de alta velocidad:</strong> Impulso direccional instantáneo en tierra o aire.</div></li>
+                                <li><span class="list-icon">▸</span><div><strong>Activación de circuitos:</strong> Energiza baterías, puertas, cables movilizadores e interruptores.</div></li>
+                            </ul>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 6: EXPLICACIÓN ARTE (1 m 25 s)
+             Guion oficial de Luka Manuel Milani (3 pasos)
+             ========================================== -->
+        <section class="slide" data-slide="6" data-max-steps="2" data-bg-actor="false">
+            <div class="slide-inner art-layout">
+                <div class="art-header">
+                    <div>
+                        <p class="section-kicker">DIRECCIÓN DE ARTE &amp; AMBIENTACIÓN · LUKA MANUEL MILANI</p>
+                        <h2 class="slide-heading">ESTILO PIXEL ART, REFERENCIAS Y ATMÓSFERA</h2>
+                    </div>
+                    <div class="state-tabs">
+                        <span class="state-tab active" data-art-tab="0">ESCALAS Y PALETA</span>
+                        <span class="state-tab" data-art-tab="1">REFERENCIAS</span>
+                        <span class="state-tab" data-art-tab="2">ATMÓSFERA Y VFX</span>
+                    </div>
+                </div>
+
+                <!-- PASO 0: Muestra de Ferro, Bloque/Objeto 32x32, Paleta de colores apagada y Zona del nivel -->
+                <div class="art-stage-panel active-state" data-art-panel="0">
+                    <div class="art-step1-grid">
+                        <!-- Columna izquierda: Escalas Pixel Art (32x32 y 64x64) + Paleta de grises/opacos -->
+                        <div class="art-specs-col">
+                            <div class="art-scale-cards">
+                                <div class="scale-card">
+                                    <span class="scale-tag">PERSONAJES Y ENEMIGOS (64×64)</span>
+                                    <div class="scale-preview-box">
+                                        <div class="sprite-fe26-solid-idle pixel-art" style="transform: scale(1.4);"></div>
+                                        <div class="sprite-enemy-idle pixel-art" style="transform: scale(1.25);"></div>
+                                    </div>
+                                    <p>Fe26 y criaturas del laboratorio</p>
+                                </div>
+
+                                <div class="scale-card">
+                                    <span class="scale-tag">BLOQUES Y OBJETOS (32×32)</span>
+                                    <div class="scale-preview-box">
+                                        <img src="Recursos/assets/bateria.png" alt="Objeto Batería 32x32" class="pixel-art obj-32-preview">
+                                        <div class="tile-32-sample pixel-art"></div>
+                                    </div>
+                                    <p>Baterías, losas y módulos</p>
+                                </div>
+                            </div>
+
+                            <!-- Paleta de colores apagada y variantes de grises/opacos -->
+                            <div class="palette-box">
+                                <div class="palette-header">
+                                    <span>PALETA CROMÁTICA: GRISES Y TONOS OPACOS</span>
+                                    <span class="palette-sub">Ambientación desconocida y abandonada</span>
+                                </div>
+                                <div class="swatches-row">
+                                    <div class="swatch" style="background: #141c28;"><span>#141C28</span></div>
+                                    <div class="swatch" style="background: #2f3641;"><span>#2F3641</span></div>
+                                    <div class="swatch" style="background: #565b63;"><span>#565B63</span></div>
+                                    <div class="swatch" style="background: #7f8389;"><span>#7F8389</span></div>
+                                    <div class="swatch" style="background: #9a9ea4;"><span>#9A9EA4</span></div>
+                                    <div class="swatch" style="background: #37604f;"><span>#37604F</span></div>
+                                    <div class="swatch" style="background: #5ff2e0; color: #040809;"><span>#5FF2E0</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna derecha: Muestra de una zona del nivel -->
+                        <div class="art-zone-col">
+                            <figure class="zone-showcase-frame">
+                                <img src="Recursos/assets/captura2.png" alt="Zona del nivel de FerroPulse">
+                                <figcaption>ZONA DEL NIVEL — Contraste entre arquitectura gris/opaca e interactuables</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 1: Los 3 juegos de referencia visual (SCP, Escape the Backrooms, Little Nightmares) + escena de sala -->
+                <div class="art-stage-panel" data-art-panel="1">
+                    <div class="references-grid">
+                        <article class="ref-game-card">
+                            <div class="ref-logo-banner scp-banner">
+                                <span class="ref-code">REF // 01</span>
+                                <h3>SCP: CONTAINMENT BREACH</h3>
+                            </div>
+                            <div class="ref-body">
+                                <p><strong>Laboratorio abandonado y laberinto de salas:</strong> Base para la estructura claustrofóbica de pasillos e instalaciones científicas fuera de control.</p>
+                            </div>
+                        </article>
+
+                        <article class="ref-game-card">
+                            <div class="ref-logo-banner backrooms-banner">
+                                <span class="ref-code">REF // 02</span>
+                                <h3>ESCAPE THE BACKROOMS</h3>
+                            </div>
+                            <div class="ref-body">
+                                <p><strong>Falta de orientación e inquietud constante:</strong> Espacios liminales que transmiten la tensión de no saber qué acecha en la siguiente sala.</p>
+                            </div>
+                        </article>
+
+                        <article class="ref-game-card">
+                            <div class="ref-logo-banner nightmares-banner">
+                                <span class="ref-code">REF // 03</span>
+                                <h3>LITTLE NIGHTMARES</h3>
+                            </div>
+                            <div class="ref-body">
+                                <p><strong>Baja iluminación y complejidad de puzzles:</strong> Uso de sombras profundas, contraste focalizado y diseño espacial de acertijos en el nivel.</p>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="ref-room-comparison">
+                        <div class="ref-room-shot">
+                            <img src="Recursos/assets/moodboard.png" alt="Moodboard y Referencias">
+                            <span>Moodboard de Referencias Visuales</span>
+                        </div>
+                        <div class="ref-room-shot">
+                            <img src="Recursos/assets/captura1.png" alt="Sala del Laboratorio FerroPulse">
+                            <span>Aplicación en Sala del Laboratorio (FerroPulse)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 2: Transmisión al jugador (Desorientación, Baja Iluminación, Música/Sonidos y VFX) -->
+                <div class="art-stage-panel" data-art-panel="2">
+                    <div class="art-split">
+                        <div class="art-media-frame">
+                            <img src="Recursos/assets/captura3.png" alt="Atmósfera, Iluminación y VFX en FerroPulse">
+                        </div>
+                        <div class="art-notes-box">
+                            <h3>Experiencia Sensorial e Inmersión</h3>
+                            <p class="art-immersion-lead">Transmitir que <strong>hay algo más junto con el jugador</strong> en la oscuridad del laboratorio:</p>
+                            <ul class="cyber-list compact">
+                                <li>
+                                    <span class="list-icon">01</span>
+                                    <div><strong>Sensación de Desorientación:</strong> Avance tenso a través de sectores desconocidos del complejo.</div>
+                                </li>
+                                <li>
+                                    <span class="list-icon">02</span>
+                                    <div><strong>Baja Iluminación Dinámica:</strong> Oscuridad envolvente que limita el campo visual y destaca los pulsos de energía.</div>
+                                </li>
+                                <li>
+                                    <span class="list-icon">03</span>
+                                    <div><strong>Música, Sonidos y VFX Aplicados:</strong> Partículas de polvo abandonado, chispas eléctricas, niebla y diseño sonoro opresivo.</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 7: EXPLICACIÓN PROGRAMACIÓN (30-40 s)
+             Logo de Godot + ventajas apareciendo una por una
+             ========================================== -->
+        <section class="slide" data-slide="7" data-max-steps="5" data-bg-actor="true">
+            <div class="slide-inner split-layout">
+                <div class="godot-brand-col">
+                    <div class="godot-logo-card">
+                        <img src="Recursos/Godot_logo_large_color_dark.png" alt="Godot Engine Logo" class="godot-logo-img">
+                        <div class="godot-meta-tags">
+                            <span class="tech-tag">GODOT ENGINE 4.6</span>
+                            <span class="tech-tag">LICENCIA MIT</span>
+                            <span class="tech-tag">GDSCRIPT PROPIO</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="godot-points-col">
+                    <p class="section-kicker">INGENIERÍA &amp; ARQUITECTURA TÉCNICA</p>
+                    <h2 class="slide-heading">TECNOLOGÍA SÓLIDA Y SOBERANA</h2>
+
+                    <ul class="cyber-list">
+                        <li class="reveal-step" data-step="1">
+                            <span class="list-icon">01</span>
+                            <div>
+                                <strong>Gratuito, Libre y Open Source (Nacido en Argentina):</strong>
+                                Motor de código abierto con proyección global y raíces locales.
+                            </div>
+                        </li>
+                        <li class="reveal-step" data-step="2">
+                            <span class="list-icon">02</span>
+                            <div>
+                                <strong>Especializado en 2D Nativo:</strong>
+                                Pipeline dedicado de píxeles reales, físicas de inercia propias, máquinas de estado y shaders personalizados.
+                            </div>
+                        </li>
+                        <li class="reveal-step" data-step="3">
+                            <span class="list-icon">03</span>
+                            <div>
+                                <strong>0% Regalías ni Licencias:</strong>
+                                Sin costos ocultos ni bloqueos de proveedor (<em>vendor lock-in</em>).
+                            </div>
+                        </li>
+                        <li class="reveal-step" data-step="4">
+                            <span class="list-icon">04</span>
+                            <div>
+                                <strong>100% Propiedad Intelectual del Equipo:</strong>
+                                Mintios preserva la titularidad y control total sobre el código fuente y la IP de FerroPulse.
+                            </div>
+                        </li>
+                        <li class="reveal-step" data-step="5">
+                            <span class="list-icon">05</span>
+                            <div>
+                                <strong>Comunidad Amplia y Documentación Sólida:</strong>
+                                Ecosistema activo y recursos técnicos que aceleraron la resolución de problemas críticos.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 8: COMERCIAL 1 — PÚBLICO OBJETIVO
+             ========================================== -->
+        <section class="slide" data-slide="8" data-max-steps="0" data-bg-actor="true">
+            <div class="slide-inner center-layout">
+                <p class="section-kicker">ESTRATEGIA COMERCIAL // BLOQUE 01</p>
+                <h2 class="slide-heading">PÚBLICO OBJETIVO</h2>
+
+                <div class="commercial-cards-grid">
+                    <article class="comm-card">
+                        <div class="comm-card-num">14+</div>
+                        <h3>Rango Etario</h3>
+                        <p>Jugadores desde los <strong>14 años hasta adultos jóvenes</strong> que buscan retos mecánicos reales y una atmósfera atrapante.</p>
+                    </article>
+
+                    <article class="comm-card">
+                        <div class="comm-card-num">2D</div>
+                        <h3>ADN de Plataformas Clásicos</h3>
+                        <p>Jugadores que ya tuvieron contacto con referentes como <strong>Super Mario Bros.</strong> y <strong>Sonic</strong>, familiarizados con la precisión y el momentum.</p>
+                    </article>
+
+                    <article class="comm-card">
+                        <div class="comm-card-num">SKILL</div>
+                        <h3>Easy to Learn, Hard to Master</h3>
+                        <p>Accesible desde el estado sólido inicial, con un techo de habilidad profundo al encadenar inercia líquida y movilidad eléctrica.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 9: COMERCIAL 2 — DEMO JUGABLE + QR
+             ========================================== -->
+        <section class="slide" data-slide="9" data-max-steps="0" data-bg-actor="false">
+            <div class="slide-inner split-layout">
+                <div class="demo-info-col">
+                    <div class="live-badge">● DISPONIBLE AHORA EN ITCH.IO</div>
+                    <h2 class="slide-heading">DEMO JUGABLE PARA PC</h2>
+                    <p class="demo-lead">Probá hoy mismo el vertical slice oficial de <strong>FerroPulse</strong> de forma gratuita.</p>
+
+                    <div class="demo-stats-grid">
+                        <div class="stat-box">
+                            <span class="stat-val">2 / 4</span>
+                            <span class="stat-lbl">Pisos del Laboratorio (Tutorial + Piso 1 completo)</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-val">15 – 40 min</span>
+                            <span class="stat-lbl">Duración estimada de juego</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-val">Windows PC</span>
+                            <span class="stat-lbl">Descarga ligera (51 MB)</span>
+                        </div>
+                    </div>
+
+                    <a href="https://31perseus.itch.io/ferropulse" target="_blank" rel="noopener" class="itch-cta-link">
+                        31perseus.itch.io/ferropulse ↗
+                    </a>
+                </div>
+
+                <div class="demo-qr-col">
+                    <div class="qr-terminal-frame">
+                        <div class="qr-header">ESCANEAR PARA JUGAR LA DEMO</div>
+                        <div id="qr-code-container" class="qr-box">
+                            <!-- Generado por script.js en SVG nítido + soporte de imagen Recursos/qr.png si existe -->
+                            <canvas id="qr-canvas" width="240" height="240"></canvas>
+                        </div>
+                        <div class="qr-footer">https://31perseus.itch.io/ferropulse</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 10: COMERCIAL 3 — PLANES A FUTURO
+             ========================================== -->
+        <section class="slide" data-slide="10" data-max-steps="0" data-bg-actor="true">
+            <div class="slide-inner center-layout">
+                <p class="section-kicker">HOJA DE RUTA &amp; EXPANSIÓN</p>
+                <h2 class="slide-heading">PLANES A FUTURO</h2>
+
+                <div class="roadmap-timeline">
+                    <div class="roadmap-node current">
+                        <span class="node-date">ACTUALIDAD</span>
+                        <h3>Demo Pública &amp; Ronda con Publishers</h3>
+                        <p>Pisos 0 y 1 completados. Búsqueda de financiamiento y feedback editorial para completar los Pisos 3 y 4, Jefe del Piso 2 y cinemáticas de lore.</p>
+                    </div>
+
+                    <div class="roadmap-node target">
+                        <span class="node-date">FINALES SEPT / MEDIADOS OCT 2027</span>
+                        <h3>Lanzamiento Versión Final en PC (Steam)</h3>
+                        <p>Juego completo con los 4 pisos del laboratorio, jefes finales y narrativa ambiental íntegra (2 a 4 horas de duración principal).</p>
+                    </div>
+
+                    <div class="roadmap-node expansion">
+                        <span class="node-date">FASE POST-LANZAMIENTO</span>
+                        <h3>Ports a Consolas &amp; Localización</h3>
+                        <p>Expansión del alcance comercial mediante adaptación a consolas y traducción a múltiples idiomas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 11: TRÁILER (1 m 30 s - 2 m)
+             Simple reproductor para iniciar el tráiler
+             ========================================== -->
+        <section class="slide" data-slide="11" data-max-steps="0" data-bg-actor="false">
+            <div class="slide-inner center-layout trailer-layout">
+                <div class="trailer-header">
+                    <p class="section-kicker">TRANSMISIÓN AUDIOVISUAL</p>
+                    <h2 class="slide-heading">TRÁILER OFICIAL</h2>
+                </div>
+
+                <div class="video-player-frame" id="trailer-wrapper">
+                    <video id="trailer-video" controls preload="metadata" poster="Recursos/assets/captura1.png">
+                        <source src="Recursos/Ferro Pulse Trailer.mp4" type="video/mp4">
+                        Tu navegador no soporta reproducción de video HTML5.
+                    </video>
+
+                    <div id="trailer-placeholder-overlay" class="trailer-overlay">
+                        <button type="button" id="btn-play-trailer" class="play-trigger-btn">
+                            <span class="play-triangle">▶</span>
+                            <span>INICIAR TRÁILER</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 12: DESPEDIDA (10 s)
+             Gracias por su atención + Contacto
+             ========================================== -->
+        <section class="slide" data-slide="12" data-max-steps="0" data-bg-actor="true">
+            <div class="slide-inner center-layout">
+                <div class="thanks-brand-row">
+                    <img src="Recursos/isotipo Mintios.png" alt="Mintios" class="thanks-mintios-logo">
+                    <div class="ferropulse-code-logo small">
+                        <div class="line-ferro">FERRO</div>
+                        <div class="line-pulse">PULSE</div>
+                        <div class="pulse-bar"></div>
+                    </div>
+                </div>
+
+                <h1 class="thanks-heading">¡GRACIAS POR SU ATENCIÓN!</h1>
+                <p class="thanks-sub">¿PREGUNTAS O FEEDBACK? ESTAMOS A DISPOSICIÓN</p>
+
+                <div class="contact-strip">
+                    <div class="contact-item">
+                        <span class="contact-lbl">CORREO OFICIAL</span>
+                        <a href="mailto:mintiosgames@gmail.com">mintiosgames@gmail.com</a>
+                    </div>
+                    <div class="contact-item qr-contact-card">
+                        <span class="contact-lbl">DEMO EN ITCH.IO — ESCANEAR QR</span>
+                        <div class="qr-box qr-box-small">
+                            <canvas id="qr-canvas-final" width="140" height="140"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
